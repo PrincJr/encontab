@@ -3,7 +3,7 @@ package encontab.consts;
 import java.lang.String;
 
 public class NfceEmitente {
-	public static final String ID_EMITENTE_TAG = "Emit";
+	public static final String ID_EMITENTE_TAG = "emit";
 	public static final String CNPJ_TAG = "CNPJ";
 	public static final String CPF_REMETENTE_TAG = "CPF";
 	public static final String RAZAO_SOCIAL_EMITENTE_TAG = "xNome";

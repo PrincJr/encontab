@@ -26,7 +26,7 @@ public class NfceInfo {
 			//Indica operação com Consumidor final
 	public static final String IndOperacaoConsumidorFinalTag = "indFinal";
 			//Indicador de presença do comprador no estabelecimento comercial no momento da operação
-	public static final String IndConsumidorPresenteTag = "indPress";
+	public static final String IND_CCONSUMIDOR_PRESENTE_TAG = "indPress";
 																	//Processo de emissão da NF-e
 	public static final String ProcessoEmissaoTag = "procEmi";
 																	//Versão do Processo de emissão da NF-e
@@ -35,5 +35,6 @@ public class NfceInfo {
 	public static final String SequenciaXmlTag = "-x-";
 	public static final String DataHoraContingenciaTag = "dhCont";
 	public static final String JustificativaContingenciaTag = "xJust";
+	public static final String ID_ATTRIBUTE = "id";
 	
 }
