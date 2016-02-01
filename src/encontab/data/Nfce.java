@@ -1,4 +1,5 @@
 package encontab.data;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.lang.String;
 import java.text.DateFormat;
@@ -24,18 +25,19 @@ import encontab.consts.NfceEmitente;
 import encontab.consts.NfceInfo;
 import encontab.log.Logger;
 import encontab.data.Emitente;
+import encontab.locale.Messages;
 
 
 public class Nfce {
-	String id;
-	String versao;
-	long codUfEmitente;
-	String codChaveAcesso;
-	String naturezaOperacao;
-	long indicadorFormaPagamento;
-	String modeloDocumento;
-	String serieDocumento;
-	String numeroDocumento;
+	public String id;
+	public String versao;
+	//public long codUfEmitente;
+	public String codChaveAcesso;
+	public String naturezaOperacao;
+	public long indicadorFormaPagamento;
+	public String modeloDocumento;
+	public String serieDocumento;
+	public String numeroDocumento;
 	float pIcms = 0;
 	float ipi = 0;
 	float vIcms = 0;
@@ -43,16 +45,16 @@ public class Nfce {
 	String dados_adic;
 	String inscr_estadual;
 	String cnpj;
-	Date dataHoraEmissao;
-	Date dataHoraSaida;;
+	public Date dataHoraEmissao;
+	public Date dataHoraSaida;;
 	String uf;
-	String xmlFileName;
-	short tipoOperacao = 0;		// 0-Entrada 1-Saída
-	short idLocalDestinoOperacao = 0;	// operação: 0-Local 1-Interstadual 2-no exterior
-	short codMunicipioFG;
-	short tipoImpressaoDANFE = 0;
-	short tipoEmissao = 1;
-	short digitoVerificadorChaveAcesso = 0;
+	public String xmlFileName;
+	public short tipoOperacao = 0;		// 0-Entrada 1-Saída
+	public short idLocalDestinoOperacao = 0;	// operação: 0-Local 1-Interstadual 2-no exterior
+	public short codMunicipioFG;
+	public short tipoImpressaoDANFE = 0;
+	public short tipoEmissao = 1;
+	public short digitoVerificadorChaveAcesso = 0;
 	short tipoAmbiente = 2; 	//Ambiente de homologação
 	short finEmissao = 1;       //NFC-e Normal
 	short indOpConsumidorFinal = 0; 	//0-Normal 1-Consumidor Final
@@ -62,11 +64,15 @@ public class Nfce {
 	Date dataHoraContingencia;
 	String justificativaContingencia;
 	
-	Emitente emitente;
+	public Emitente emitente;
 	Document nfceXML = null;	//Documento XML que representa a NFC-e
 	Logger logger = Logger.get();
 	
-	public void saveAsXML() throws TransformerException{
+	public Nfce(String lid, String lversion){
+		this.id = lid; this.versao = lversion;
+	}
+	
+	public void generateXML() throws TransformerException{
 		DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder domBuilder;
 		try {
@@ -85,10 +91,10 @@ public class Nfce {
 		Element el = nfceXML.createElement(NfceInfo.InfNFeTag);
 		
 		Attr at = nfceXML.createAttribute(NfceInfo.ID_ATTRIBUTE);
-		at.setValue("NFE8081828384858687888980");
+		at.setValue(this.id);
 		el.setAttributeNode(at);
 		at = nfceXML.createAttribute("version");
-		at.setValue("1.1.0");
+		at.setValue(this.versao);
 		el.setAttributeNode(at);
 		Element parent = el;
 		
@@ -98,7 +104,7 @@ public class Nfce {
 		parent.appendChild(ide);
 		parent = ide;
 		el = nfceXML.createElement(NfceInfo.CodUnidadeFederativaEmitenteTag);
-		el.appendChild(nfceXML.createTextNode("13"));
+		el.appendChild(nfceXML.createTextNode(Short.toString(emitente.endereco.ufcodigo)));
 		parent.appendChild(el);
 
 		el = nfceXML.createElement(NfceInfo.CodNumChaveAcessoTag);
@@ -178,7 +184,9 @@ public class Nfce {
 		
 		Element elementoEmitente = this.CreateTagEmitente(this.emitente);
 		parent.appendChild(elementoEmitente);
-
+	}
+	
+	public byte[] getXMLBytes(Document docXML) throws TransformerException {
 		TransformerFactory fac = TransformerFactory.newInstance();
 		Transformer transformer;
 		try {
@@ -188,7 +196,30 @@ public class Nfce {
 			e1.printStackTrace();
 			throw e1;
 		}
-		DOMSource source = new DOMSource(nfceXML);
+		DOMSource source = new DOMSource(docXML);
+		ByteArrayOutputStream xmlEncoded = new ByteArrayOutputStream();
+		StreamResult streamSink = new StreamResult(xmlEncoded); 
+		try {
+			transformer.transform(source, streamSink);
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}
+		return xmlEncoded.toByteArray();
+	}
+	
+	public void saveXML(Document docXML) throws TransformerException {
+		TransformerFactory fac = TransformerFactory.newInstance();
+		Transformer transformer;
+		try {
+			transformer = fac.newTransformer();
+		} catch (TransformerConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			throw e1;
+		}
+		DOMSource source = new DOMSource(docXML);
 		
 		File xmlFile = new File(this.xmlFileName);
 		StreamResult streamSink = new StreamResult(xmlFile); 
@@ -204,7 +235,7 @@ public class Nfce {
 	
 	protected Element CreateTagEmitente(Emitente emitente){
 		if (nfceXML==null) {
-			logger.error("Documento xml da NFCE inválido");
+			logger.error(Messages.INVALID_XML_DOC);
 			return null;
 		}
 															//Cria elemento de dentificação do emitente da NF-e
