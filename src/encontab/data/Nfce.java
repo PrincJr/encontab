@@ -104,7 +104,7 @@ public class Nfce {
 		parent.appendChild(ide);
 		parent = ide;
 		el = nfceXML.createElement(NfceInfo.CodUnidadeFederativaEmitenteTag);
-		el.appendChild(nfceXML.createTextNode(Short.toString(emitente.endereco.ufcodigo)));
+		el.appendChild(nfceXML.createTextNode(Long.toString(emitente.endereco.getUF().cod_IBGE)));
 		parent.appendChild(el);
 
 		el = nfceXML.createElement(NfceInfo.CodNumChaveAcessoTag);
@@ -281,7 +281,7 @@ public class Nfce {
 		parent.appendChild(el);
 
 		el = nfceXML.createElement(NfceEmitente.COD_MUNICIPIO_TAG);
-		el.appendChild(nfceXML.createTextNode(Short.toString(endereco.codMunicipio)));
+		el.appendChild(nfceXML.createTextNode(endereco.getMunicipio().codigo));
 		parent.appendChild(el);
 
 		el = nfceXML.createElement(NfceEmitente.BAIRRO_TAG);
